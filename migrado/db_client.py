@@ -7,6 +7,7 @@ See LICENSE.txt for details.
 
 import subprocess
 
+import click
 from arango import ArangoClient
 from arango.exceptions import TransactionExecuteError
 
@@ -151,7 +152,12 @@ class MigrationClient:
 
         try:
             result = subprocess.run(command, text=True, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+            
+            click.echo("subprocess out: {}".format({result.stdout.replace('\\n', '\n')}))
         except FileNotFoundError as e:
             return str(e)
-
-        return result.stdout.replace('\\n', '\n')
+        
+        if result.returncode:
+            return result.stdout.replace('\\n', '\n')
+        
+        return None
